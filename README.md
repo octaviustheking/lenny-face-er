@@ -11,5 +11,4 @@ After installing all necessary libraries, just run the code! Whenever you press 
 this might be the most useless thing i have ever made ( ͡°👅 ͡°)
 
 ### Known Issues
-
- - 
+ - none so far, except that its really ugly rn

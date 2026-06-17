@@ -27,6 +27,21 @@ def popup_manager(action):
         canvas = tk.Canvas(container)
         canvas.pack(side='left', fill='both', expand=True)
 
+        def scroll(event):
+            if sys.platform.startswith('linux'):
+                if event.num == 4:
+                    canvas.yview_scroll(-1, 'units')
+                elif event.num == 5:
+                    canvas.yview_scroll(1, 'units')
+            elif sys.platform == "darwin":  # why is this the mac name
+                canvas.yview_scroll(-event.delta, 'units')
+            else:
+                canvas.yview_scroll(int(-event.delta / 120), 'units')
+
+        canvas.bind_all('<MouseWheel>', scroll)
+        canvas.bind_all('<Button-4>', scroll)
+        canvas.bind_all('<Button-5>', scroll)
+
         scrollbar = tk.Scrollbar(container, orient='vertical', command=canvas.yview)
         scrollbar.pack(side='right', fill='y')
 
@@ -42,32 +57,9 @@ def popup_manager(action):
         canvas.bind('<Configure>', update_scroll_region)
         scroll_frame.bind('<Configure>', update_scroll_region)
 
-        def scroll(event):
-            if sys.platform.startswith('linux'):
-                if event.num == 4:
-                    canvas.yview_scroll(-1, 'units')
-                elif event.num == 5:
-                    canvas.yview_scroll(1, 'units')
-            else:
-                canvas.yview_scroll(int(-event.delta / 120), 'units')
+        # WHY WON'T SCROLLING WORK ASD;LKJ
 
-        def bind_mousewheel(widget):
-            widget.bind('<Enter>', lambda e: activate_mousewheel())
-            widget.bind('<Leave>', lambda e: deactivate_mousewheel())
-
-        def activate_mousewheel():
-            canvas.bind_all('<MouseWheel>', scroll)
-            canvas.bind_all('<Button-4>', scroll)
-            canvas.bind_all('<Button-5>', scroll)
-
-        def deactivate_mousewheel():
-            canvas.unbind_all('<MouseWheel>')
-            canvas.unbind_all('<Button-4>')
-            canvas.unbind_all('<Button-5>')
-
-        bind_mousewheel(container)
-        bind_mousewheel(canvas)
-        bind_mousewheel(scroll_frame)
+        # im typing on US international keyboard rn whoops
 
         def copied():
             message = tk.Label(popup, text='copied lenny!', fg='green', font=('Arial', 14))
@@ -92,17 +84,11 @@ def popup_manager(action):
             col = i % 2
             lenny_button.grid(row=row, column=col, padx=10, pady=5)
 
-            lenny_button.bind('<Enter>', lambda e: activate_mousewheel())
-            lenny_button.bind('<Leave>', lambda e: deactivate_mousewheel())
-
         close_button = tk.Button(popup, text='close', command=popup.destroy)
         close_button.pack(pady=10)
 
     elif action == 'close':
         popup.destroy()
-        popup.canvas.unbind_all('<MouseWheel>')
-        popup.canvas.unbind_all('<Button-4>')
-        popup.canvas.unbind_all('<Button-5>')
 
 
 def on_press(key):
