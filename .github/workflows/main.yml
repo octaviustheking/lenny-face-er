@@ -1,22 +1,44 @@
-name: Build Windows Exe
-on: [push]
+name: Build Executables
+
+on:
+  workflow_dispatch:
+
 jobs:
   build:
-    runs-on: windows-latest
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.11'
-    - name: Install PyInstaller
-      run: |
-        pip install pyinstaller
-        # Add any pip install commands for your script's dependencies here
-    - name: Build Exe
-      run: pyinstaller --onefile main.py
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: windows-exe
-        path: dist/main.exe
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install PyInstaller
+        run: pip install pyinstaller
+
+      - name: Build executable
+        run: pyinstaller --onefile main.py
+
+      - name: Rename executable
+        shell: bash
+        run: |
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            mv dist/main.exe dist/main-windows.exe
+          elif [[ "$RUNNER_OS" == "macOS" ]]; then
+            mv dist/main dist/main-macos
+          fi
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-${{ matrix.os }}
+          path: dist/*
